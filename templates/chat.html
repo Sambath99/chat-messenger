@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Group</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"> <!-- Font Awesome for icons -->
+    <link href="/static/chat.css" rel="stylesheet" type="text/css"> <!-- Custom CSS for styling -->
+    <style>
+        /* Inline styles for additional styling if needed */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .chat-header h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        .chat-header i {
+            font-size: 24px;
+            color: #007bff;
+            margin-right: 10px;
+        }
+        .chat-messages {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .chat-message .username {
+            font-weight: bold;
+            color: #007bff;
+            margin-right: 5px;
+        }
+        .chat-message .content {
+            color: #333;
+        }
+        .chat-form {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .chat-form input[type="text"] {
+            flex: 1;
+            width: calc(100% - 100px);
+            margin-right: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+            font-size: 16px;
+        }
+        .chat-form input[type="submit"] {
+            width: 100px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+        .chat-form input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .clear-cookie-btn {
+            width: 100%;
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        .clear-cookie-btn:hover {
+            background-color: #c82333;
+        }
+        .clear-cookie-btn i {
+            margin-right: 5px;
+        }
+        .clear-cookie-btn span {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-header">
+            <h1><i class="fas fa-comments"></i> Chat Group</h1>
+            <p>Welcome to the Chat Group, {{ username }}</p>
+        </div>
+        <div class="chat-messages" id="messages">
+            <!-- Messages will be displayed here -->
+        </div>
+        <form action="/submit" method="post" class="chat-form">
+            <input type="hidden" name="username" value="{{ username }}">
+            <input type="text" name="message" placeholder="Type your message...">
+            <input type="submit" value="Send">
+            <button class="clear-cookie-btn" type="button" onclick="clearCookie()">
+                <i class="fas fa-times"></i>
+                <span>Clear Username</span>
+            </button>
+        </form>
+    </div>
+    <script>
+        function fetchMessages() {
+            fetch('/messages')
+                .then(response => response.json())
+                .then(data => {
+                    const messagesDiv = document.getElementById('messages');
+                    messagesDiv.innerHTML = ''; // Clear previous messages
+                    data.forEach(message => {
+                        const messageElement = document.createElement('div');
+                        messageElement.classList.add('chat-message');
+                        messageElement.innerHTML = `
+                            <span class="username">${message.username}:</span>
+                            <span class="content">${message.message}</span>
+                        `;
+                        messagesDiv.appendChild(messageElement);
+                    });
+                    // Scroll to bottom of messages
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                });
+        }
+
+        // Fetch messages initially when the page loads
+        fetchMessages();
+
+        // Poll the server for new messages every few seconds
+        setInterval(fetchMessages, 5000); // Adjust the interval as needed
+
+        // Function to clear the username cookie
+        function clearCookie() {
+            document.cookie = 'username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            window.location.reload(); // Reload the page after clearing the cookie
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet"> <!-- Font Awesome for icons -->
+    <link href="/static/admin.css" rel="stylesheet" type="text/css"> <!-- Custom CSS for styling -->
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-user-shield"></i> Admin Panel</h1>
+        <div class="actions">
+            <button onclick="clearMessages()">Clear Message History</button>
+            <button onclick="viewTotalUsers()">View Total Users</button>
+            <button onclick="deleteAllUsers()">Delete All Users</button>
+        </div>
+        <div id="userList" style="display: none;">
+            <h2>Total Users: <span id="totalUsers"></span></h2>
+            <ul id="users"></ul>
+        </div>
+    </div>
+    <script>
+        function clearMessages() {
+            fetch('/clear-messages', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Message history cleared successfully.');
+                        // Optionally, reload or update the page
+                    } else {
+                        alert('Failed to clear message history.');
+                    }
+                })
+                .catch(error => console.error('Error clearing messages:', error));
+        }
+
+        function viewTotalUsers() {
+            fetch('/total-users')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalUsers').textContent = data.totalUsers;
+                    const usersList = document.getElementById('users');
+                    usersList.innerHTML = '';
+                    data.usernames.forEach(username => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = username;
+                        usersList.appendChild(listItem);
+                    });
+                    document.getElementById('userList').style.display = 'block';
+                })
+                .catch(error => console.error('Error fetching total users:', error));
+        }
+
+        function deleteAllUsers() {
+            fetch('/delete-users', { method: 'POST' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('All users deleted successfully.');
+                        // Optionally, reload or update the page
+                    } else {
+                        alert('Failed to delete users.');
+                    }
+                })
+                .catch(error => console.error('Error deleting users:', error));
+        }
+    </script>
+</body>
+</html>
